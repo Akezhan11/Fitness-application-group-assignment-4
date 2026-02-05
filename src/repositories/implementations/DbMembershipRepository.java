@@ -9,7 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class DbMembershipRepository implements MembershipRepository {
-
+    private final DatabaseConnection db = DatabaseConnection.getInstance();
     @Override
     public void save(MembershipType membership) {
 
@@ -18,7 +18,7 @@ public class DbMembershipRepository implements MembershipRepository {
             VALUES (?, ?, ?, ?, ?)
         """;
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = db.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, membership.getMemberId());
@@ -41,7 +41,7 @@ public class DbMembershipRepository implements MembershipRepository {
             SELECT * FROM memberships WHERE member_id = ?
         """;
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = db.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, memberId);
@@ -74,7 +74,7 @@ public class DbMembershipRepository implements MembershipRepository {
             WHERE member_id = ?
         """;
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = db.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, membership.getType());
@@ -97,7 +97,7 @@ public class DbMembershipRepository implements MembershipRepository {
             UPDATE memberships SET active = false WHERE member_id = ?
         """;
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = db.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, memberId);

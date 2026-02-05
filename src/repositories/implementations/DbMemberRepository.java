@@ -11,12 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DbMemberRepository implements MemberRepository{
+    private final DatabaseConnection db = DatabaseConnection.getInstance();
     @Override
     public void save(Member member){
         String sql = """
                 INSERT INTO members(name, surname, phone, email, gender) VALUES(?,?,?,?,?)
                 """;
-        try(Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+        try(Connection con = db.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
             ps.setString(1,member.getName());
             ps.setString(2,member.getSurname());
             ps.setString(3,member.getPhoneNumber());
@@ -32,7 +33,7 @@ public class DbMemberRepository implements MemberRepository{
         String sql = """
                 SELECT * FROM members WHERE id=? ;
                 """;
-        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = db.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if(rs.next()){
@@ -53,7 +54,7 @@ public class DbMemberRepository implements MemberRepository{
         String sql = """
                 SELECT * FROM members WHERE phone=? ;
                 """;
-        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = db.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, phone);
             ResultSet rs = ps.executeQuery();
             if(rs.next()){
@@ -74,7 +75,7 @@ public class DbMemberRepository implements MemberRepository{
         String sql = """
                 SELECT * FROM members WHERE email=? ;
                 """;
-        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = db.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
             if(rs.next()){
@@ -95,7 +96,7 @@ public class DbMemberRepository implements MemberRepository{
         String sql = """
                 UPDATE members SET name=?, surname=?, phone=?, email=?, gender=? WHERE id=?
                 """;
-        try(Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+        try(Connection con = db.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
             ps.setString(1,member.getName());
             ps.setString(2,member.getSurname());
             ps.setString(3,member.getPhoneNumber());
@@ -116,8 +117,7 @@ public class DbMemberRepository implements MemberRepository{
         String sql = "SELECT * FROM members;";
         List<Member> members = new ArrayList<>();
 
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
+        try (Connection con = db.getConnection(); PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {

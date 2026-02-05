@@ -14,12 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DbFitnessClassRepository implements FitnessClassRepository{
+    private final DatabaseConnection db = DatabaseConnection.getInstance();
     @Override
     public void save(FitnessClass fitnessClass){
         String sql = """
             INSERT INTO fitness(type,description,date,time,cost,trainer_first_name,trainer_last_name,max_places) VALUES (?,?,?,?,?,?,?,?);
         """;
-        try(Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+        try(Connection con = db.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
             ps.setString(1,fitnessClass.getFitnessType());
             ps.setString(2,fitnessClass.getFitnessDescription());
             ps.setString(3,fitnessClass.getFitnessDate());
@@ -38,7 +39,7 @@ public class DbFitnessClassRepository implements FitnessClassRepository{
         String sql = """
                 SELECT * FROM fitness WHERE id=? ;
                 """;
-        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = db.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if(rs.next()){
@@ -54,7 +55,7 @@ public class DbFitnessClassRepository implements FitnessClassRepository{
         String sql = """
                 SELECT * FROM fitness WHERE type=?;
                 """;
-        try(Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+        try(Connection con = db.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
             ps.setString(1,fitnessType);
             ResultSet rs = ps.executeQuery();
             if(rs.next()){
@@ -74,8 +75,7 @@ public class DbFitnessClassRepository implements FitnessClassRepository{
         SELECT * FROM fitness WHERE trainer_first_name = ? AND trainer_last_name = ?
         """;
 
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = db.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, trainerName);
             ps.setString(2, trainerSurname);
@@ -102,8 +102,7 @@ public class DbFitnessClassRepository implements FitnessClassRepository{
         SELECT * FROM fitness WHERE cost = ?
         """;
 
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = db.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, cost);
             ResultSet rs = ps.executeQuery();
@@ -124,7 +123,7 @@ public class DbFitnessClassRepository implements FitnessClassRepository{
         List<FitnessClass> classes = new ArrayList<>();
         String sql = "SELECT * FROM fitness";
 
-        try (Connection con = DatabaseConnection.getConnection();ResultSet rs = con.createStatement().executeQuery(sql)) {
+        try (Connection con = db.getConnection();ResultSet rs = con.createStatement().executeQuery(sql)) {
 
             while (rs.next()) {
                 classes.add(fitnessclassdesc(rs));

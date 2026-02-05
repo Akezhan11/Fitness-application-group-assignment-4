@@ -229,7 +229,6 @@ public class Main {
                         case 1 -> {
                             System.out.print("Enter member id: ");
                             int id = sc.nextInt();
-                            sc.nextLine(); // поглощаем \n
 
                             System.out.print("Enter type: ");
                             String type = sc.nextLine();
@@ -399,7 +398,8 @@ public class Main {
         }
     }
     void main(){
-        try (Connection con = DatabaseConnection.getConnection()) {
+        DatabaseConnection db = DatabaseConnection.getInstance();
+        try (Connection con = db.getConnection()) {
             System.out.println("CONNECTED TO SUPABASE");
         } catch (Exception e) {
             e.printStackTrace();

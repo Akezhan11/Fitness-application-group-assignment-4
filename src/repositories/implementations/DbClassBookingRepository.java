@@ -14,10 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DbClassBookingRepository implements ClassBookingRepository {
+    private final DatabaseConnection db = DatabaseConnection.getInstance();
     @Override
     public void save(ClassBooking classBooking) {
         String sql = "INSERT INTO bookings(member_id, class_id) VALUES (?, ?);";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = db.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, classBooking.getMember().getId());
             ps.setInt(2, classBooking.getFitnessClass().getId());
@@ -30,7 +31,7 @@ public class DbClassBookingRepository implements ClassBookingRepository {
     @Override
     public boolean exists(int memberId, int fitnessClassId) {
         String sql = "SELECT 1 FROM bookings WHERE member_id = ? AND class_id = ?;";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = db.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, memberId);
             ps.setInt(2, fitnessClassId);
@@ -44,7 +45,7 @@ public class DbClassBookingRepository implements ClassBookingRepository {
     @Override
     public int countByFitnessClassId(int fitnessClassId) {
         String sql = "SELECT COUNT(*) FROM bookings WHERE class_id = ?;";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = db.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, fitnessClassId);
             ResultSet rs = ps.executeQuery();
@@ -58,7 +59,7 @@ public class DbClassBookingRepository implements ClassBookingRepository {
     @Override
     public void delete(ClassBooking classBooking) {
         String sql = "DELETE FROM bookings WHERE member_id = ? AND class_id = ?;";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = db.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, classBooking.getMember().getId());
             ps.setInt(2, classBooking.getFitnessClass().getId());
@@ -79,7 +80,7 @@ public class DbClassBookingRepository implements ClassBookingRepository {
                 JOIN fitness f ON b.class_id = f.id
                 WHERE f.id = ?;
                 """;
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = db.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, fitnessClassId);
@@ -114,7 +115,7 @@ public class DbClassBookingRepository implements ClassBookingRepository {
                 JOIN fitness f ON b.class_id = f.id
                 WHERE m.id = ?;
                 """;
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = db.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, memberId);
@@ -148,7 +149,7 @@ public class DbClassBookingRepository implements ClassBookingRepository {
                 JOIN members m ON b.member_id = m.id
                 JOIN fitness f ON b.class_id = f.id;
                 """;
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = db.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
