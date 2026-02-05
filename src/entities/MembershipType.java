@@ -57,4 +57,14 @@ public class MembershipType {
     public boolean isExpired() {
         return endDate.isBefore(LocalDate.now());
     }
+    @Override
+    public String toString() {
+        return "Membership ID: " + id +
+                ", Member ID: " + memberId +
+                ", Type: " + type +
+                ", Start: " + startDate +
+                ", End: " + endDate +
+                ", Active: " + active;
+    }
+
 }

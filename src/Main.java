@@ -1,4 +1,6 @@
 import edu.aitu.oop3.db.*;
+import entities.MembershipType;
+import exception.MembershipExpiredException;
 import repositories.implementations.DbClassBookingRepository;
 import repositories.implementations.DbFitnessClassRepository;
 import repositories.implementations.DbMemberRepository;
@@ -77,10 +79,22 @@ public class Main {
                         case 4 -> {
                             System.out.print("Enter trainer name: ");
                             String trainerName = sc.nextLine();
+
                             System.out.print("Enter trainer surname: ");
                             String trainerSurname = sc.nextLine();
-                            fitnessService.getByTrainerName(trainerName, trainerSurname);
+
+                            List<FitnessClass> classes =
+                                    fitnessService.getByTrainerName(trainerName, trainerSurname);
+
+                            if (classes.isEmpty()) {
+                                System.out.println("No fitness classes found for this trainer.");
+                            } else {
+                                for (FitnessClass fc : classes) {
+                                    System.out.println(fc);
+                                }
+                            }
                         }
+
                         case 5 -> {
                             System.out.print("Enter cost of the class: ");
                             int cost = sc.nextInt();
@@ -161,34 +175,84 @@ public class Main {
                     int choice3 = sc.nextInt();
                     sc.nextLine();
                     switch(choice3){
-                        case 1->{
-                            System.out.println("Enter member id: ");
-                            int id = sc.nextInt();
-                            System.out.println("Enter type: ");
-                            String  type = sc.nextLine();
-                            System.out.println("Enter days: ");
-                            int days = sc.nextInt();
-                            membershipService.buyMembership(id,type, days);
-                        }case 2->{
-                            System.out.println("Enter member id: ");
-                            membershipService.checkActive(sc.nextInt());
-                        }case 3->{
-                            System.out.println("Enter member id: ");
-                            membershipService.deactivate(sc.nextInt());
-                        }case 4 -> {
-                            System.out.print("Enter member ID: ");
-                            int memberId = sc.nextInt();
-                            sc.nextLine();
-                            System.out.print("Enter new membership type: ");
-                            String type = sc.nextLine();
-                            System.out.print("Enter duration (days): ");
-                            int days = sc.nextInt();
-                            membershipService.update(memberId, type, days);
-                        }
-                        case 5->{
+                        case 1 -> {
                             System.out.print("Enter member id: ");
-                            membershipService.findByMemberId(sc.nextInt());
-                        }case 6 ->{
+                            int id = sc.nextInt();
+                            sc.nextLine(); // поглощаем \n
+
+                            System.out.print("Enter type: ");
+                            String type = sc.nextLine();
+
+                            System.out.print("Enter days: ");
+                            int days = sc.nextInt();
+
+                            try {
+                                membershipService.buyMembership(id, type, days);
+                                System.out.println("Membership bought successfully!");
+                            } catch (Exception e) {
+                                System.out.println("Error: " + e.getMessage());
+                            }
+                        }
+
+                        case 2 -> {
+                            System.out.print("Enter member id: ");
+                            int id = sc.nextInt();
+                            sc.nextLine();
+
+                            try {
+                                membershipService.checkActive(id);
+                                System.out.println("Membership is active!");
+                            } catch (MembershipExpiredException e) {
+                                System.out.println("Membership is expired or inactive.");
+                            }
+                        }
+
+                        case 3 -> {
+                            System.out.print("Enter member id: ");
+                            int id = sc.nextInt();
+                            sc.nextLine();
+
+                            try {
+                                membershipService.deactivate(id);
+                                System.out.println("Membership deactivated successfully!");
+                            } catch (Exception e) {
+                                System.out.println("Error: " + e.getMessage());
+                            }
+                        }
+
+                        case 4 -> {
+                            System.out.print("Enter member id: ");
+                            int id = sc.nextInt();
+                            sc.nextLine();
+
+                            System.out.print("Enter new type: ");
+                            String newType = sc.nextLine();
+
+                            System.out.print("Enter days: ");
+                            int days = sc.nextInt();
+                            sc.nextLine();
+
+                            try {
+                                membershipService.update(id, newType, days);
+                                System.out.println("Membership updated successfully!");
+                            } catch (Exception e) {
+                                System.out.println("Error: " + e.getMessage());
+                            }
+                        }
+
+                        case 5 -> {
+                            System.out.print("Enter member id: ");
+                            int id = sc.nextInt();
+                            sc.nextLine();
+
+                            MembershipType membership = membershipService.findByMemberId(id);
+
+                            if (membership != null) {
+                                System.out.println("Membership details:");
+                                System.out.println(membership);
+                            }
+                        }
+                        case 6 ->{
                             return;
                         }default -> System.out.println("Unknown choice");
                     }

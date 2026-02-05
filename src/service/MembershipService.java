@@ -5,6 +5,7 @@ import exception.MembershipExpiredException;
 import repositories.MembershipRepository;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class MembershipService {
 
@@ -49,13 +50,17 @@ public class MembershipService {
         membershipRepository.update(membership);
     }
 
-    public void findByMemberId(int memberId){
+    public MembershipType findByMemberId(int memberId){
         MembershipType membership = membershipRepository.findByMemberId(memberId);
 
         if (membership == null) {
-            throw new RuntimeException("Membership not found");
+            System.out.println("No membership found for member ID " + memberId);
         }
+
+        return membership;
     }
+
+
     public void deactivate(int memberId) {
 
         MembershipType membership = membershipRepository.findByMemberId(memberId);

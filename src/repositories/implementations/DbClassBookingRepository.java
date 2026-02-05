@@ -18,7 +18,7 @@ public class DbClassBookingRepository implements ClassBookingRepository{
     @Override
     public void save(ClassBooking classBooking) {
         String sql = """
-                INSERT INTO booking(member_id,class_id) VALUES (?,?);
+                INSERT INTO bookings(member_id,class_id) VALUES (?,?);
                 """;
         try(Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
             ps.setInt(1,classBooking.getMember().getId());
@@ -31,7 +31,7 @@ public class DbClassBookingRepository implements ClassBookingRepository{
     @Override
     public boolean exists(int memberId, int fitnessClassId){
         String sql = """
-                SELECT 1 FROM booking WHERE member_id =? AND class_id =? ; 
+                SELECT 1 FROM bookings WHERE member_id =? AND class_id =?;
                 """;
         try(Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
             ps.setInt(1,memberId);
@@ -45,7 +45,7 @@ public class DbClassBookingRepository implements ClassBookingRepository{
     @Override
     public int countByFitnessClassId(int fitnessClassId){
         String sql = """
-                SELECT COUNT(*) FROM booking where class_id = ?;
+                SELECT COUNT(*) FROM bookings where class_id = ?;
         """;
         try(Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
             ps.setInt(1,fitnessClassId);
@@ -80,7 +80,7 @@ public class DbClassBookingRepository implements ClassBookingRepository{
             f.id AS class_id,
             f.type AS class_type,
             f.max_places AS max_places
-        FROM booking b
+        FROM bookings b
         JOIN members m ON b.member_id = m.id
         JOIN fitness f ON b.class_id = f.id
         WHERE f.id = ?
@@ -123,7 +123,7 @@ public class DbClassBookingRepository implements ClassBookingRepository{
             f.id AS class_id,
             f.type AS class_type,
             f.max_places AS max_places
-        FROM booking b
+        FROM bookings b
         JOIN members m ON b.member_id = m.id
         JOIN fitness f ON b.class_id = f.id
         WHERE m.id = ?
@@ -166,7 +166,7 @@ public class DbClassBookingRepository implements ClassBookingRepository{
                 f.id AS class_id,
                 f.type AS class_type,
                 f.max_places AS max_places
-            FROM booking b
+            FROM bookings b
             JOIN members m ON b.member_id = m.id
             JOIN fitness f ON b.class_id = f.id;
         """;
