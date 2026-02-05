@@ -5,35 +5,34 @@ import entities.FitnessClass;
 import entities.Member;
 import exception.BookingAlreadyExistsException;
 import exception.ClassFullException;
-import exception.MembershipExpiredException;
 import repositories.ClassBookingRepository;
 
 import java.util.List;
 
 public class BookingService {
+
     private final ClassBookingRepository bookingRepository;
-    public BookingService(ClassBookingRepository bookingRepository) {
+    private final MembershipService membershipService;
+    public BookingService(ClassBookingRepository bookingRepository, MembershipService membershipService) {
         this.bookingRepository = bookingRepository;
+        this.membershipService = membershipService;
     }
-    public void bookClass(Member member, FitnessClass fitnessClass){
+    public void bookClass(Member member, FitnessClass fitnessClass) {
         if (member == null || fitnessClass == null) {
             throw new IllegalArgumentException("Member or FitnessClass is null");
         }
-        if (member.isExpired()) throw new MembershipExpiredException();
+        membershipService.checkActive(member.getId());
+
         if (bookingRepository.exists(member.getId(), fitnessClass.getId())) {
             throw new BookingAlreadyExistsException();
         }
         int bookedCount = bookingRepository.countByFitnessClassId(fitnessClass.getId());
-
-        if (bookedCount >= fitnessClass.getMaxPlaces()){
+        if (bookedCount >= fitnessClass.getMaxPlaces()) {
             throw new ClassFullException();
         }
-        ClassBooking booking = new ClassBooking(member, fitnessClass);
-
-        bookingRepository.save(booking);
+        bookingRepository.save(new ClassBooking(member, fitnessClass));
     }
     public void cancelBooking(Member member, FitnessClass fitnessClass) {
-
         if (member == null || fitnessClass == null) {
             throw new IllegalArgumentException("Member or FitnessClass is null");
         }
@@ -41,7 +40,7 @@ public class BookingService {
         ClassBooking booking = new ClassBooking(member, fitnessClass);
         bookingRepository.delete(booking);
     }
-    public List<ClassBooking> getAllBookings(){
+    public List<ClassBooking> getAllBookings() {
         return bookingRepository.findAll();
     }
     public List<ClassBooking> getBookingsByMember(int memberId) {

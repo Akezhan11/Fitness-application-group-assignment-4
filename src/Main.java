@@ -1,5 +1,7 @@
 import edu.aitu.oop3.db.*;
 import entities.MembershipType;
+import exception.BookingAlreadyExistsException;
+import exception.ClassFullException;
 import exception.MembershipExpiredException;
 import repositories.implementations.DbClassBookingRepository;
 import repositories.implementations.DbFitnessClassRepository;
@@ -24,10 +26,10 @@ public class Main {
         DbMembershipRepository membershipRepo = new DbMembershipRepository();
 
         FitnessClassService fitnessService = new FitnessClassService(fitnessRepo);
-        BookingService bookingService = new BookingService(bookingRepo);
-        MemberService memberService = new MemberService(memberRepo);
         MembershipService membershipService = new MembershipService(membershipRepo);
-        Member member = new Member();
+        BookingService bookingService = new BookingService(bookingRepo, membershipService);
+        MemberService memberService = new MemberService(memberRepo);
+
         while (true){
             System.out.println("Fitness application");
             System.out.println("Menu");
@@ -102,20 +104,69 @@ public class Main {
                             System.out.println(fc != null ? fc : "Not found");
                         }
 
-                        case 6 -> {
-                            System.out.print("Class ID to book: ");
-                            int id = sc.nextInt();
-                            FitnessClass fc = fitnessService.findById(id);
-                            bookingService.bookClass(member, fc);
-                            System.out.println("Booked successfully");
+                        case 6 -> { // Book fitness class
+                            System.out.print("Enter your Member ID: ");
+                            int memberId = sc.nextInt();
+                            sc.nextLine();
+
+                            System.out.print("Enter Class ID to book: ");
+                            int classId = sc.nextInt();
+                            sc.nextLine();
+
+                            try {
+                                Member member = memberService.findMemberByid(memberId);
+                                FitnessClass fitnessClass = fitnessService.findById(classId);
+
+                                if (member == null) {
+                                    System.out.println("Error: Member not found.");
+                                    break;
+                                }
+                                if (fitnessClass == null) {
+                                    System.out.println("Error: Fitness class not found.");
+                                    break;
+                                }
+                                membershipService.checkActive(memberId);
+                                bookingService.bookClass(member, fitnessClass);
+                                System.out.println("Booking successful for class '" + fitnessClass.getFitnessType() + "'!");
+
+                            } catch (MembershipExpiredException e) {
+                                System.out.println("Error: Your membership has expired or is inactive.");
+                            } catch (ClassFullException e) {
+                                System.out.println("Error: This class is already full.");
+                            } catch (BookingAlreadyExistsException e) {
+                                System.out.println("Error: You have already booked this class.");
+                            } catch (RuntimeException e) {
+                                System.out.println("Error: " + e.getMessage());
+                            }
                         }
 
-                        case 7 -> {
-                            System.out.print("Class ID to cancel: ");
-                            int id = sc.nextInt();
-                            FitnessClass fc = fitnessService.findById(id);
-                            bookingService.cancelBooking(member, fc);
-                            System.out.println("Booking cancelled");
+                        case 7 -> { // Cancel booking
+                            System.out.print("Enter your Member ID: ");
+                            int memberId = sc.nextInt();
+                            sc.nextLine();
+
+                            System.out.print("Enter Class ID to cancel booking: ");
+                            int classId = sc.nextInt();
+                            sc.nextLine();
+
+                            try {
+                                Member member = memberService.findMemberByid(memberId);
+                                FitnessClass fitnessClass = fitnessService.findById(classId);
+
+                                if (member == null) {
+                                    System.out.println("Error: Member not found.");
+                                    break;
+                                }
+                                if (fitnessClass == null) {
+                                    System.out.println("Error: Fitness class not found.");
+                                    break;
+                                }
+                                bookingService.cancelBooking(member, fitnessClass);
+                                System.out.println("Booking cancelled successfully for class '" + fitnessClass.getFitnessType() + "'.");
+
+                            } catch (RuntimeException e) {
+                                System.out.println("Error cancelling booking: " + e.getMessage());
+                            }
                         }
 
                         case  8-> {

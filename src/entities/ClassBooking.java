@@ -20,4 +20,9 @@ public class ClassBooking{
     public void setFitnessClass(FitnessClass fitnessClass){
         this.fitnessClass = fitnessClass;
     }
+    @Override
+    public String toString() {
+        return "Booking: Member [" + member.getId() + " - " + member.getName() + "] "
+                + " -> Fitness Class [" + fitnessClass.getId() + " - " + fitnessClass.getFitnessType() + "]";
+    }
 }
