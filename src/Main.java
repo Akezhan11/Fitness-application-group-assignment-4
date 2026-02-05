@@ -284,7 +284,7 @@ public class Main {
         }
     }
     void main(){
-        try (Connection c = DatabaseConnection.getConnection()) {
+        try (Connection con = DatabaseConnection.getConnection()) {
             System.out.println("CONNECTED TO SUPABASE");
         } catch (Exception e) {
             e.printStackTrace();
