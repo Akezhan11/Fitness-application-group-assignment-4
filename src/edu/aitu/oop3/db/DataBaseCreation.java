@@ -17,12 +17,12 @@ public class DataBaseCreation {
     private static void memberTable() {
         String sql = """
                 CREATE TABLE IF NOT EXISTS members(
-                    id SERIAL PRIMARY KEY,
-                    name varchar(255) NOT NULL,
-                    surname varchar(255) NOT NULL,
-                    phone varchar(255) NOT NULL,
-                    email varchar(255) UNIQUE NOT NULL,
-                    gender varchar(10) NOT NULL
+                id SERIAL PRIMARY KEY,
+                name varchar(255) NOT NULL,
+                surname varchar(255) NOT NULL,
+                phone varchar(255) NOT NULL,
+                email varchar(255) UNIQUE NOT NULL,
+                gender varchar(10) NOT NULL
                 );
                 """;
         execute(sql);
@@ -30,16 +30,16 @@ public class DataBaseCreation {
 
     private static void fitnessTable() {
         String sql = """
-                CREATE TABLE IF NOT EXISTS fitness(
-                    id SERIAL PRIMARY KEY,
-                    type varchar(255) not null,
-                    description TEXT,
-                    date varchar(20),
-                    time varchar(10),
-                    cost INT,
-                    trainer_first_name varchar(255),
-                    trainer_last_name varchar(255),
-                    max_places INT
+                create table if not exists fitness(
+                id SERIAL PRIMARY KEY,
+                type varchar(255) not null,
+                description TEXT,
+                date varchar(20),
+                time varchar(10),
+                cost INT,
+                trainer_first_name varchar(255),
+                trainer_last_name varchar(255),
+                max_places INT
                 );
                 """;
         execute(sql);
@@ -47,13 +47,13 @@ public class DataBaseCreation {
 
     private static void bookingTable() {
         String sql = """
-                CREATE TABLE IF NOT EXISTS bookings (
-                    id SERIAL PRIMARY KEY,
-                    member_id INT NOT NULL REFERENCES members(id),
-                    class_id INT NOT NULL REFERENCES fitness(id),
-                    booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                );
-                """;
+        CREATE TABLE IF NOT EXISTS bookings (
+            id SERIAL PRIMARY KEY,
+            member_id INT NOT NULL REFERENCES members(id),
+            class_id INT NOT NULL REFERENCES fitness(id),
+            booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        """;
         execute(sql);
     }
 
@@ -66,6 +66,7 @@ public class DataBaseCreation {
                     start_date DATE NOT NULL,
                     end_date DATE NOT NULL,
                     active BOOLEAN NOT NULL,
+                
                     CONSTRAINT fk_member
                         FOREIGN KEY (member_id)
                         REFERENCES members(id)
@@ -79,18 +80,18 @@ public class DataBaseCreation {
         String sql = """
                 CREATE TABLE IF NOT EXISTS attendance(
                     id SERIAL PRIMARY KEY,
-                    member_id INT NOT NULL REFERENCES members(id) ON DELETE CASCADE,
-                    visit_date DATE NOT NULL,
-                    UNIQUE(member_id, visit_date)
+                    member_id INT NOT NULL REFERENCES members(id),
+                    visit_date DATE NOT NULL
                 );
                 """;
         execute(sql);
     }
 
     private static void execute(String sql) {
-        try (Connection con = DatabaseConnection.getConnectionStatic();
+        try (Connection con = DatabaseConnection.getInstance().getConnection();
              Statement stmt = con.createStatement()) {
             stmt.execute(sql);
+            System.out.println("Executed: " + sql.split("\\(")[0]);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
