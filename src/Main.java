@@ -7,42 +7,53 @@ import repositories.implementations.DbClassBookingRepository;
 import repositories.implementations.DbFitnessClassRepository;
 import repositories.implementations.DbMemberRepository;
 import repositories.implementations.DbMembershipRepository;
+import repositories.implementations.DbAttendanceRepository;
 import entities.FitnessClass;
 import entities.Member;
+import entities.Attendance;
 import service.BookingService;
 import service.FitnessClassService;
 import service.MemberService;
 import service.MembershipService;
+
 import java.sql.Connection;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    public void run(){
+
+    public void run() {
         Scanner sc = new Scanner(System.in);
+
         DbFitnessClassRepository fitnessRepo = new DbFitnessClassRepository();
         DbClassBookingRepository bookingRepo = new DbClassBookingRepository();
         DbMemberRepository memberRepo = new DbMemberRepository();
         DbMembershipRepository membershipRepo = new DbMembershipRepository();
+        DbAttendanceRepository attendanceRepo = new DbAttendanceRepository();
 
         FitnessClassService fitnessService = new FitnessClassService(fitnessRepo);
         MembershipService membershipService = new MembershipService(membershipRepo);
         BookingService bookingService = new BookingService(bookingRepo, membershipService);
         MemberService memberService = new MemberService(memberRepo);
 
-        while (true){
+        while (true) {
             System.out.println("Fitness application");
             System.out.println("Menu");
             System.out.println("1: Fitness classes");
             System.out.println("2: Membership");
             System.out.println("3: Members");
             System.out.println("4: Show all Bookings");
-            System.out.println("5: Exit");
+            System.out.println("5: Attendance");
+            System.out.println("6: Exit");
             System.out.print("Enter your choice: ");
+
             int choice = sc.nextInt();
             sc.nextLine();
-            switch(choice){
-                case 1->{
+
+            switch (choice) {
+
+                case 1 -> {
                     System.out.println("1: Show all fitness classes");
                     System.out.println("2: Find fitness class by type");
                     System.out.println("3: Find fitness class by id");
@@ -58,7 +69,7 @@ public class Main {
                     int choice2 = sc.nextInt();
                     sc.nextLine();
 
-                    switch(choice2){
+                    switch (choice2) {
                         case 1 -> {
                             List<FitnessClass> classes = fitnessService.getAll();
                             classes.forEach(System.out::println);
@@ -85,15 +96,12 @@ public class Main {
                             System.out.print("Enter trainer surname: ");
                             String trainerSurname = sc.nextLine();
 
-                            List<FitnessClass> classes =
-                                    fitnessService.getByTrainerName(trainerName, trainerSurname);
+                            List<FitnessClass> classes = fitnessService.getByTrainerName(trainerName, trainerSurname);
 
                             if (classes.isEmpty()) {
                                 System.out.println("No fitness classes found for this trainer.");
                             } else {
-                                for (FitnessClass fc : classes) {
-                                    System.out.println(fc);
-                                }
+                                classes.forEach(System.out::println);
                             }
                         }
 
@@ -104,7 +112,7 @@ public class Main {
                             System.out.println(fc != null ? fc : "Not found");
                         }
 
-                        case 6 -> { // Book fitness class
+                        case 6 -> {
                             System.out.print("Enter your Member ID: ");
                             int memberId = sc.nextInt();
                             sc.nextLine();
@@ -125,8 +133,10 @@ public class Main {
                                     System.out.println("Error: Fitness class not found.");
                                     break;
                                 }
+
                                 membershipService.checkActive(memberId);
                                 bookingService.bookClass(member, fitnessClass);
+
                                 System.out.println("Booking successful for class '" + fitnessClass.getFitnessType() + "'!");
 
                             } catch (MembershipExpiredException e) {
@@ -140,7 +150,7 @@ public class Main {
                             }
                         }
 
-                        case 7 -> { // Cancel booking
+                        case 7 -> {
                             System.out.print("Enter your Member ID: ");
                             int memberId = sc.nextInt();
                             sc.nextLine();
@@ -161,6 +171,7 @@ public class Main {
                                     System.out.println("Error: Fitness class not found.");
                                     break;
                                 }
+
                                 bookingService.cancelBooking(member, fitnessClass);
                                 System.out.println("Booking cancelled successfully for class '" + fitnessClass.getFitnessType() + "'.");
 
@@ -169,14 +180,13 @@ public class Main {
                             }
                         }
 
-                        case  8-> {
+                        case 8 -> {
                             System.out.print("Fitness class ID: ");
                             int id = sc.nextInt();
-                            bookingService.getBookingsByFitness(id)
-                                    .forEach(System.out::println);
+                            bookingService.getBookingsByFitness(id).forEach(System.out::println);
                         }
 
-                        case  9-> {
+                        case 9 -> {
                             FitnessClass fc = new FitnessClass();
 
                             System.out.print("Type: ");
@@ -203,10 +213,12 @@ public class Main {
 
                             System.out.print("Max places: ");
                             fc.setMaxPlaces(sc.nextInt());
+                            sc.nextLine();
 
                             fitnessService.addFitnessClass(fc);
                             System.out.println("Fitness class added");
                         }
+
                         case 10 -> {
                             System.out.println("Closing the program");
                             return;
@@ -215,6 +227,7 @@ public class Main {
                         default -> System.out.println("Unknown command");
                     }
                 }
+
                 case 2 -> {
                     System.out.println("1: Buy membership");
                     System.out.println("2: Check if membership is active");
@@ -222,19 +235,23 @@ public class Main {
                     System.out.println("4: Update membership");
                     System.out.println("5: Find memberships by member id");
                     System.out.println("6: Exit");
+
                     System.out.print("Enter your choice: ");
                     int choice3 = sc.nextInt();
                     sc.nextLine();
-                    switch(choice3){
+
+                    switch (choice3) {
                         case 1 -> {
                             System.out.print("Enter member id: ");
                             int id = sc.nextInt();
+                            sc.nextLine();
 
                             System.out.print("Enter type: ");
                             String type = sc.nextLine();
 
                             System.out.print("Enter days: ");
                             int days = sc.nextInt();
+                            sc.nextLine();
 
                             try {
                                 membershipService.buyMembership(id, type, days);
@@ -300,13 +317,19 @@ public class Main {
                             if (membership != null) {
                                 System.out.println("Membership details:");
                                 System.out.println(membership);
+                            } else {
+                                System.out.println("Not found");
                             }
                         }
-                        case 6 ->{
+
+                        case 6 -> {
                             return;
-                        }default -> System.out.println("Unknown choice");
+                        }
+
+                        default -> System.out.println("Unknown choice");
                     }
                 }
+
                 case 3 -> {
                     System.out.println("1: Add member");
                     System.out.println("2: Show all members");
@@ -316,10 +339,12 @@ public class Main {
                     System.out.println("6: Update member");
                     System.out.println("7: Get bookings by member id");
                     System.out.println("8: Exit");
+
                     System.out.print("Enter your choice: ");
                     int choice4 = sc.nextInt();
                     sc.nextLine();
-                    switch(choice4){
+
+                    switch (choice4) {
                         case 1 -> {
                             Member m = new Member();
                             System.out.print("Name: ");
@@ -333,29 +358,40 @@ public class Main {
                             System.out.print("Gender: ");
                             m.setGender(sc.nextLine());
                             memberService.addMember(m);
-                        }case 2->{
+                        }
+
+                        case 2 -> {
                             List<Member> members = memberService.getAllMembers();
                             if (members.isEmpty()) {
                                 System.out.println("No members found.");
                             } else {
                                 members.forEach(System.out::println);
                             }
-                        }case 3->{
+                        }
+
+                        case 3 -> {
                             System.out.print("Enter member id: ");
                             int id = sc.nextInt();
+                            sc.nextLine();
                             Member m = memberService.findMemberByid(id);
                             System.out.println(m != null ? m : "Member not found");
-                        }case 4->{
+                        }
+
+                        case 4 -> {
                             System.out.print("Enter member email: ");
                             String email = sc.nextLine();
                             Member m = memberService.findMemberByEmail(email);
                             System.out.println(m != null ? m : "Member not found");
-                        }case 5 -> {
+                        }
+
+                        case 5 -> {
                             System.out.print("Enter member phone number: ");
                             String phone = sc.nextLine();
                             Member m = memberService.findMemberByPhone(phone);
                             System.out.println(m != null ? m : "Member not found");
-                        }case 6 ->{
+                        }
+
+                        case 6 -> {
                             Member m = new Member();
 
                             System.out.print("Member ID: ");
@@ -379,31 +415,128 @@ public class Main {
 
                             memberService.updateMember(m);
                             System.out.println("Member updated successfully");
+                        }
 
-                        }case 7->{
+                        case 7 -> {
                             System.out.print("Member ID: ");
                             int id = sc.nextInt();
-                            bookingService.getBookingsByMember(id)
-                                    .forEach(System.out::println);
-                        }case 8 ->{
+                            sc.nextLine();
+                            bookingService.getBookingsByMember(id).forEach(System.out::println);
+                        }
+
+                        case 8 -> {
                             return;
-                        }default -> System.out.println("Unknown command");
+                        }
+
+                        default -> System.out.println("Unknown command");
                     }
-                }case 4 -> {
+                }
+
+                case 4 -> {
                     bookingService.getAllBookings().forEach(System.out::println);
-                }case 5->{
+                }
+
+                case 5 -> {
+                    System.out.println("1: Mark attendance (today)");
+                    System.out.println("2: Mark attendance (custom date)");
+                    System.out.println("3: Show attendance by member id");
+                    System.out.println("4: Exit");
+
+                    System.out.print("Enter your choice: ");
+                    int ch = sc.nextInt();
+                    sc.nextLine();
+
+                    switch (ch) {
+                        case 1 -> {
+                            System.out.print("Enter member id: ");
+                            int memberId = sc.nextInt();
+                            sc.nextLine();
+
+                            Member m = memberService.findMemberByid(memberId);
+                            if (m == null) {
+                                System.out.println("Member not found");
+                                break;
+                            }
+
+                            LocalDate date = LocalDate.now();
+
+                            if (attendanceRepo.exists(memberId, date)) {
+                                System.out.println("Already marked for today");
+                                break;
+                            }
+
+                            Attendance a = new Attendance(memberId, date);
+                            attendanceRepo.save(a);
+
+                            System.out.println("Attendance saved. id=" + a.getId());
+                        }
+
+                        case 2 -> {
+                            System.out.print("Enter member id: ");
+                            int memberId = sc.nextInt();
+                            sc.nextLine();
+
+                            Member m = memberService.findMemberByid(memberId);
+                            if (m == null) {
+                                System.out.println("Member not found");
+                                break;
+                            }
+
+                            System.out.print("Enter date (YYYY-MM-DD): ");
+                            String dateStr = sc.nextLine();
+                            LocalDate date = LocalDate.parse(dateStr);
+
+                            if (attendanceRepo.exists(memberId, date)) {
+                                System.out.println("Already marked for this date");
+                                break;
+                            }
+
+                            Attendance a = new Attendance(memberId, date);
+                            attendanceRepo.save(a);
+
+                            System.out.println("Attendance saved. id=" + a.getId());
+                        }
+
+                        case 3 -> {
+                            System.out.print("Enter member id: ");
+                            int memberId = sc.nextInt();
+                            sc.nextLine();
+
+                            List<Attendance> list = attendanceRepo.findByMemberId(memberId);
+                            if (list.isEmpty()) {
+                                System.out.println("No attendance records");
+                            } else {
+                                for (Attendance a : list) {
+                                    System.out.println("id=" + a.getId() + ", memberId=" + a.getMemberId() + ", date=" + a.getVisitDate());
+                                }
+                            }
+                        }
+
+                        case 4 -> {
+                            break;
+                        }
+
+                        default -> System.out.println("Unknown command");
+                    }
+                }
+
+                case 6 -> {
                     return;
-                }default -> System.out.println("Unknown command");
+                }
+
+                default -> System.out.println("Unknown command");
             }
         }
     }
-    void main(){
+
+    public static void main(String[] args) {
         DatabaseConnection db = DatabaseConnection.getInstance();
         try (Connection con = db.getConnection()) {
             System.out.println("CONNECTED TO SUPABASE");
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         DataBaseCreation.init();
         new Main().run();
     }
