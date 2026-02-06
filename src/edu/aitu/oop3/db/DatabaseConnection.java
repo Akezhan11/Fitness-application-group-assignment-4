@@ -17,8 +17,7 @@ public class DatabaseConnection {
 
     private static volatile DatabaseConnection instance;
 
-    private DatabaseConnection() {
-    }
+    private DatabaseConnection() {}
 
     public static DatabaseConnection getInstance() {
         if (instance == null) {
@@ -30,9 +29,12 @@ public class DatabaseConnection {
         }
         return instance;
     }
-
     public Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);
+    }
+
+    public static Connection getConnectionStatic() throws SQLException {
+        return getInstance().getConnection();
     }
 
     private static String loadPassword() {
