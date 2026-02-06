@@ -70,4 +70,10 @@ public class MemberService {
     private boolean isValidPhone(String phone) {
         return phone != null && phone.matches("\\+?\\d{10,13}");
     }
+    public List<Member> getFilteredMembers(Predicate<Member> filter) {
+        return repository.findAll()
+                .stream()
+                .filter(filter)
+                .toList();
+    }
 }
