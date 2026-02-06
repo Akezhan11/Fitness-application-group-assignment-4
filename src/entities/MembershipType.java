@@ -2,69 +2,79 @@ package entities;
 
 import java.time.LocalDate;
 
-public class MembershipType {
+public class Membership {
 
     private int id;
     private int memberId;
     private String type;
+    private double price;
     private LocalDate startDate;
     private LocalDate endDate;
     private boolean active;
-    public MembershipType(){}
-    public MembershipType(int memberId, String type, LocalDate startDate, LocalDate endDate, boolean active){
-        setMemberId(memberId);
-        setType(type);
-        setStartDate(startDate);
-        setEndDate(endDate);
-        setActive(active);
-    }
-    public int getId() {
-        return id;
-    }
-    public void setId(int id){
-        this.id = id;
-    }
-    public int getMemberId() {
-        return memberId;
-    }
-    public void setMemberId(int memberId){
-        this.memberId = memberId;
-    }
-    public String getType() {
-        return type;
-    }
-    public void setType(String type){
-        this.type = type;
-    }
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-    public void setStartDate(LocalDate startDate){
-        this.startDate = startDate;
-    }
-    public LocalDate getEndDate() {
-        return endDate;
-    }
-    public void setEndDate(LocalDate endDate){
-        this.endDate = endDate;
-    }
-    public boolean isActive() {
-        return active;
-    }
-    public void setActive(boolean active){
-        this.active = active;
-    }
-    public boolean isExpired() {
-        return endDate.isBefore(LocalDate.now());
-    }
-    @Override
-    public String toString() {
-        return "Membership ID: " + id +
-                ", Member ID: " + memberId +
-                ", Type: " + type +
-                ", Start: " + startDate +
-                ", End: " + endDate +
-                ", Active: " + active;
-    }
 
+    private Membership(Builder builder) {
+        this.id = builder.id;
+        this.memberId = builder.memberId;
+        this.type = builder.type;
+        this.price = builder.price;
+        this.startDate = builder.startDate;
+        this.endDate = builder.endDate;
+        this.active = builder.active;
+    }
+    public int getId() { return id; }
+    public int getMemberId() { return memberId; }
+    public String getType() { return type; }
+    public double getPrice() { return price; }
+    public LocalDate getStartDate() { return startDate; }
+    public LocalDate getEndDate() { return endDate; }
+    public boolean isActive() { return active; }
+
+    public static class Builder {
+        private int id;
+        private int memberId;
+        private String type;
+        private double price;
+        private LocalDate startDate;
+        private LocalDate endDate;
+        private boolean active;
+
+        public Builder id(int id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder memberId(int memberId) {
+            this.memberId = memberId;
+            return this;
+        }
+
+        public Builder type(String type) {
+            this.type = type;
+            return this;
+        }
+
+        public Builder price(double price) {
+            this.price = price;
+            return this;
+        }
+
+        public Builder startDate(LocalDate startDate) {
+            this.startDate = startDate;
+            return this;
+        }
+
+        public Builder endDate(LocalDate endDate) {
+            this.endDate = endDate;
+            return this;
+        }
+
+        public Builder active(boolean active) {
+            this.active = active;
+            return this;
+        }
+
+        public Membership build() {
+            return new Membership(this);
+        }
+    }
 }
