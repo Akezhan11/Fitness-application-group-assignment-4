@@ -1,4 +1,6 @@
 package service;
+import utils.Filter;
+import utils.ListUtils;
 
 import entities.FitnessClass;
 import repositories.FitnessClassRepository;
@@ -56,13 +58,10 @@ public class FitnessClassService {
     public List<FitnessClass> getAll() {
         return repository.findAll();
     }
-    public List<FitnessClass> getFilteredClasses(Predicate<FitnessClass> filter) {
-
-        return getAll()
-                .stream()
-                .filter(filter)
-                .collect(Collectors.toList());
+    public List<FitnessClass> getFilteredClasses(Filter<FitnessClass> filter) {
+        return ListUtils.filter(getAll(), filter);
     }
+
     public List<FitnessClass> getSortedClasses(Comparator<FitnessClass> comparator) {
 
         return getAll()

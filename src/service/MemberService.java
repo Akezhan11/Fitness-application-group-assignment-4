@@ -1,5 +1,8 @@
 package service;
 
+import utils.Filter;
+import utils.ListUtils;
+
 import entities.Member;
 import exception.InvalidPhoneNumberException;
 import exception.MemberNotFoundException;
@@ -71,12 +74,10 @@ public class MemberService {
         return members;
     }
 
-    public List<Member> getFilteredMembers(Predicate<Member> filter) {
-        List<Member> members = getAllMembers();
-        return members.stream()
-                .filter(filter)
-                .collect(Collectors.toList());
+    public List<Member> getFilteredMembers(Filter<Member> filter) {
+        return ListUtils.filter(getAllMembers(), filter);
     }
+
     public List<Member> getSortedMembers(Comparator<Member> comparator) {
         List<Member> members = getAllMembers();
         return members.stream()
@@ -84,7 +85,8 @@ public class MemberService {
                 .collect(Collectors.toList());
     }
     public List<Member> getMembersByGender(String gender) {
-        return getFilteredMembers(m -> m.getGender() != null && m.getGender().equalsIgnoreCase(gender));
+        return getFilteredMembers(m ->
+                m.getGender() != null && m.getGender().equalsIgnoreCase(gender));
     }
 
     public List<Member> getMembersByEmailDomain(String domain) {
@@ -105,4 +107,5 @@ public class MemberService {
     private boolean isValidPhone(String phone) {
         return phone != null && phone.matches("\\+?\\d{10,13}");
     }
+
 }

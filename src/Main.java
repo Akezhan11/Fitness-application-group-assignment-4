@@ -264,14 +264,15 @@ public class Main {
                             classes.forEach(System.out::println);
                         }
                         case 15 -> {
-                            System.out.print("Enter minimum cost: ");
-                            int minCost = sc.nextInt();
+                            System.out.print("Max cost: ");
+                            int maxCost = sc.nextInt();
                             sc.nextLine();
-
-                            List<FitnessClass> classes =
-                                    fitnessService.getFilteredClasses(fc -> fc.getFitnessCost() >= minCost);
-
-                            classes.forEach(System.out::println);
+                            List<FitnessClass> filtered = fitnessService.getFilteredClasses(
+                                    ((utils.Filter<FitnessClass>) fc -> fc.getFitnessCost() <= maxCost)
+                                            .and(fc -> fc.getMaxPlaces() > 0)
+                            );
+                            if (filtered.isEmpty()) System.out.println("No classes found");
+                            else filtered.forEach(System.out::println);
                         }
                         case 16 -> {
                             List<FitnessClass> classes =
@@ -559,21 +560,15 @@ public class Main {
                         }
 
                         case 13 -> {
-                            System.out.print("Show only male members? (yes/no): ");
-                            String answer = sc.nextLine();
+                            List<Member> filtered = memberService.getFilteredMembers(
+                                    ((utils.Filter<Member>) m -> "Male".equalsIgnoreCase(m.getGender()))
+                                            .and(m -> m.getEmail() != null && m.getEmail().toLowerCase().endsWith("gmail.com"))
+                            );
 
-                            List<Member> members;
-
-                            if (answer.equalsIgnoreCase("yes")) {
-                                members = memberService.getFilteredMembers(
-                                        m -> "Male".equalsIgnoreCase(m.getGender())
-                                );
-                            } else {
-                                members = memberService.getAllMembers();
-                            }
-
-                            members.forEach(System.out::println);
+                            if (filtered.isEmpty()) System.out.println("No members found");
+                            else filtered.forEach(System.out::println);
                         }
+
                         case 14 -> {
                             List<Member> members = memberService.getSortedMembers(
                                     Comparator.comparing(Member::getName)
