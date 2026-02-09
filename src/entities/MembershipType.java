@@ -28,6 +28,9 @@ public class MembershipType {
     public LocalDate getStartDate() { return startDate; }
     public LocalDate getEndDate() { return endDate; }
     public boolean isActive() { return active; }
+    public boolean isExpired() {
+        return endDate != null && endDate.isBefore(LocalDate.now());
+    }
 
     public static class Builder {
         private int id;
