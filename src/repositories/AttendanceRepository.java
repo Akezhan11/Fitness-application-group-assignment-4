@@ -9,4 +9,6 @@ public interface AttendanceRepository {
     void save(Attendance attendance);
     boolean exists(int memberId, LocalDate date);
     List<Attendance> findByMemberId(int memberId);
+    List<Attendance> findAll();
+
 }

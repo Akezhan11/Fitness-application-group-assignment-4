@@ -3,6 +3,8 @@ import entities.MembershipType;
 import exception.BookingAlreadyExistsException;
 import exception.ClassFullException;
 import exception.MembershipExpiredException;
+import factories.MembershipKind;
+import repositories.AttendanceRepository;
 import repositories.implementations.DbClassBookingRepository;
 import repositories.implementations.DbFitnessClassRepository;
 import repositories.implementations.DbMemberRepository;
@@ -11,10 +13,7 @@ import repositories.implementations.DbAttendanceRepository;
 import entities.FitnessClass;
 import entities.Member;
 import entities.Attendance;
-import service.BookingService;
-import service.FitnessClassService;
-import service.MemberService;
-import service.MembershipService;
+import service.*;
 
 import java.sql.Connection;
 import java.time.LocalDate;
@@ -27,14 +26,17 @@ public class Main {
     public void run() {
         Scanner sc = new Scanner(System.in);
 
+        AttendanceRepository attendanceRepo = new DbAttendanceRepository();
+        AttendanceService attendanceService =
+                new AttendanceService(attendanceRepo);
+
         DbFitnessClassRepository fitnessRepo = new DbFitnessClassRepository();
         DbClassBookingRepository bookingRepo = new DbClassBookingRepository();
         DbMemberRepository memberRepo = new DbMemberRepository();
         DbMembershipRepository membershipRepo = new DbMembershipRepository();
-        DbAttendanceRepository attendanceRepo = new DbAttendanceRepository();
 
         FitnessClassService fitnessService = new FitnessClassService(fitnessRepo);
-        MembershipService membershipService = new MembershipService(membershipRepo);
+        MembershipService membershipService = new MembershipService(membershipRepo, attendanceRepo);
         BookingService bookingService = new BookingService(bookingRepo, membershipService);
         MemberService memberService = new MemberService(memberRepo);
 
@@ -295,11 +297,9 @@ public class Main {
 
                 case 2 -> {
                     System.out.println("1: Buy membership");
-                    System.out.println("2: Check if membership is active");
-                    System.out.println("3: Deactivate membership");
-                    System.out.println("4: Update membership");
-                    System.out.println("5: Find memberships by member id");
-                    System.out.println("6: Exit");
+                    System.out.println("2: Check active membership");
+                    System.out.println("3: Mark attendance");
+                    System.out.println("4: Exit");
 
                     System.out.print("Enter your choice: ");
                     int choice3 = sc.nextInt();
@@ -307,89 +307,40 @@ public class Main {
 
                     switch (choice3) {
                         case 1 -> {
-                            System.out.print("Enter member id: ");
-                            int id = sc.nextInt();
+                            System.out.print("Member ID: ");
+                            int memberId = sc.nextInt();
                             sc.nextLine();
 
-                            System.out.print("Enter type: ");
-                            String type = sc.nextLine();
-                            System.out.print("Enter cost: ");
-                            int cost = sc.nextInt();
+                            System.out.print("Type (MONTHLY/YEARLY/VISIT_BASED): ");
+                            String typeStr = sc.nextLine().trim().toUpperCase();
 
-                            System.out.print("Enter days: ");
-                            int days = sc.nextInt();
-                            sc.nextLine();
-
-                            try {
-                                membershipService.buyMembership(id, type,cost, days);
-                                System.out.println("Membership bought successfully!");
-                            } catch (Exception e) {
-                                System.out.println("Error: " + e.getMessage());
+                            Integer visits = null;
+                            if ("VISIT_BASED".equals(typeStr)) {
+                                System.out.print("Visits limit: ");
+                                visits = sc.nextInt();
+                                sc.nextLine();
                             }
-                        }
 
+                            membershipService.buyMembership(memberId, factories.MembershipKind.valueOf(typeStr), visits);
+                            System.out.println("Membership purchased");
+                        }
                         case 2 -> {
-                            System.out.print("Enter member id: ");
-                            int id = sc.nextInt();
+                            System.out.print("Member ID: ");
+                            int memberId = sc.nextInt();
                             sc.nextLine();
 
-                            try {
-                                membershipService.checkActive(id);
-                                System.out.println("Membership is active!");
-                            } catch (MembershipExpiredException e) {
-                                System.out.println("Membership is expired or inactive.");
-                            }
+                            attendanceService.markVisit(memberId, java.time.LocalDate.now());
+                            System.out.println("Visit marked");
                         }
-
                         case 3 -> {
-                            System.out.print("Enter member id: ");
-                            int id = sc.nextInt();
+                            System.out.print("Member ID: ");
+                            int memberId = sc.nextInt();
                             sc.nextLine();
 
-                            try {
-                                membershipService.deactivate(id);
-                                System.out.println("Membership deactivated successfully!");
-                            } catch (Exception e) {
-                                System.out.println("Error: " + e.getMessage());
-                            }
+                            membershipService.checkActive(memberId);
+                            System.out.println("Membership is active");
                         }
-
                         case 4 -> {
-                            System.out.print("Enter member id: ");
-                            int id = sc.nextInt();
-                            sc.nextLine();
-
-                            System.out.print("Enter new type: ");
-                            String newType = sc.nextLine();
-
-                            System.out.print("Enter days: ");
-                            int days = sc.nextInt();
-                            sc.nextLine();
-
-                            try {
-                                membershipService.update(id, newType, days);
-                                System.out.println("Membership updated successfully!");
-                            } catch (Exception e) {
-                                System.out.println("Error: " + e.getMessage());
-                            }
-                        }
-
-                        case 5 -> {
-                            System.out.print("Enter member id: ");
-                            int id = sc.nextInt();
-                            sc.nextLine();
-
-                            MembershipType membership = membershipService.findByMemberId(id);
-
-                            if (membership != null) {
-                                System.out.println("Membership details:");
-                                System.out.println(membership);
-                            } else {
-                                System.out.println("Not found");
-                            }
-                        }
-
-                        case 6 -> {
                             return;
                         }
 
