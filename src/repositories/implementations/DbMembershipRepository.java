@@ -48,14 +48,15 @@ public class DbMembershipRepository implements MembershipRepository {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                MembershipType m = new MembershipType();
-                m.setId(rs.getInt("id"));
-                m.setMemberId(rs.getInt("member_id"));
-                m.setType(rs.getString("type"));
-                m.setStartDate(rs.getDate("start_date").toLocalDate());
-                m.setEndDate(rs.getDate("end_date").toLocalDate());
-                m.setActive(rs.getBoolean("active"));
-                return m;
+                return new MembershipType.Builder()
+                        .id(rs.getInt("id"))
+                        .memberId(rs.getInt("member_id"))
+                        .type(rs.getString("type"))
+                        .price(rs.getInt("price"))
+                        .startDate(rs.getDate("start_date").toLocalDate())
+                        .endDate(rs.getDate("end_date").toLocalDate())
+                        .active(rs.getBoolean("active"))
+                        .build();
             }
 
             return null;

@@ -2,17 +2,17 @@ package entities;
 
 import java.time.LocalDate;
 
-public class Membership {
+public class MembershipType {
 
-    private int id;
-    private int memberId;
-    private String type;
-    private double price;
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private boolean active;
+    private final int id;
+    private final int memberId;
+    private final String type;
+    private final double price;
+    private final LocalDate startDate;
+    private final LocalDate endDate;
+    private final boolean active;
 
-    private Membership(Builder builder) {
+    private MembershipType(Builder builder) {
         this.id = builder.id;
         this.memberId = builder.memberId;
         this.type = builder.type;
@@ -73,8 +73,11 @@ public class Membership {
             return this;
         }
 
-        public Membership build() {
-            return new Membership(this);
+        public MembershipType build() {
+            if (type == null) {
+                throw new IllegalStateException("Type cannot be null");
+            }
+            return new MembershipType(this);
         }
     }
 }

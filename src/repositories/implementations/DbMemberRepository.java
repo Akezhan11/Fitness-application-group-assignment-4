@@ -30,19 +30,20 @@ public class DbMemberRepository implements MemberRepository{
     }
     @Override
     public Member findById(int id) {
-        String sql = """
-                SELECT * FROM members WHERE id=? ;
-                """;
-        try (Connection con = db.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        String sql = "SELECT * FROM members WHERE id=?;";
+        try (Connection con = db.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
-            if(rs.next()){
-                String name = rs.getString("name");
-                String surname = rs.getString("surname");
-                String phoneNumber = rs.getString("phone");
-                String email = rs.getString("email");
-                String gender = rs.getString("gender");
-                return new Member(name, surname,phoneNumber,email, gender);
+            if (rs.next()) {
+                return new Member.Builder()
+                        .id(rs.getInt("id"))
+                        .name(rs.getString("name"))
+                        .surname(rs.getString("surname"))
+                        .phoneNumber(rs.getString("phone"))
+                        .email(rs.getString("email"))
+                        .gender(rs.getString("gender"))
+                        .build();
             }
             return null;
         } catch (Exception e) {
@@ -51,19 +52,21 @@ public class DbMemberRepository implements MemberRepository{
     }
     @Override
     public Member findByPhone(String phone) {
-        String sql = """
-                SELECT * FROM members WHERE phone=? ;
-                """;
-        try (Connection con = db.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        String sql = "SELECT * FROM members WHERE phone=?;";
+        try (Connection con = db.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, phone);
             ResultSet rs = ps.executeQuery();
-            if(rs.next()){
-                String name = rs.getString("name");
-                String surname = rs.getString("surname");
-                String phoneNumber = rs.getString("phone");
-                String email = rs.getString("email");
-                String gender = rs.getString("gender");
-                return new Member(name, surname,phoneNumber,email, gender);
+
+            if (rs.next()) {
+                return new Member.Builder()
+                        .id(rs.getInt("id"))
+                        .name(rs.getString("name"))
+                        .surname(rs.getString("surname"))
+                        .phoneNumber(rs.getString("phone"))
+                        .email(rs.getString("email"))
+                        .gender(rs.getString("gender"))
+                        .build();
             }
             return null;
         } catch (Exception e) {
@@ -72,19 +75,21 @@ public class DbMemberRepository implements MemberRepository{
     }
     @Override
     public Member findByEmail(String email) {
-        String sql = """
-                SELECT * FROM members WHERE email=? ;
-                """;
-        try (Connection con = db.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        String sql = "SELECT * FROM members WHERE email=?;";
+        try (Connection con = db.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
-            if(rs.next()){
-                String name = rs.getString("name");
-                String surname = rs.getString("surname");
-                String phoneNumber = rs.getString("phone");
-                String emailFromDb = rs.getString("email");
-                String gender = rs.getString("gender");
-                return new Member(name, surname,phoneNumber,emailFromDb, gender);
+            if (rs.next()) {
+
+                return new Member.Builder()
+                        .id(rs.getInt("id"))
+                        .name(rs.getString("name"))
+                        .surname(rs.getString("surname"))
+                        .phoneNumber(rs.getString("phone"))
+                        .email(rs.getString("email"))
+                        .gender(rs.getString("gender"))
+                        .build();
             }
             return null;
         } catch (Exception e) {
@@ -116,24 +121,23 @@ public class DbMemberRepository implements MemberRepository{
     public List<Member> findAll() {
         String sql = "SELECT * FROM members;";
         List<Member> members = new ArrayList<>();
-
-        try (Connection con = db.getConnection(); PreparedStatement ps = con.prepareStatement(sql);
+        try (Connection con = db.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-
             while (rs.next()) {
-                String name = rs.getString("name");
-                String surname = rs.getString("surname");
-                String phoneNumber = rs.getString("phone");
-                String email = rs.getString("email");
-                String gender = rs.getString("gender");
-
-                members.add(new Member(name, surname, phoneNumber, email, gender));
+                Member member = new Member.Builder()
+                        .id(rs.getInt("id"))
+                        .name(rs.getString("name"))
+                        .surname(rs.getString("surname"))
+                        .phoneNumber(rs.getString("phone"))
+                        .email(rs.getString("email"))
+                        .gender(rs.getString("gender"))
+                        .build();
+                members.add(member);
             }
             return members;
-
         } catch (Exception e) {
             throw new RuntimeException("Error finding all members", e);
         }
     }
-
 }
