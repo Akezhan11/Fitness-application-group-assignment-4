@@ -24,22 +24,34 @@ import java.util.Scanner;
 public class Main {
 
     public void run() {
-        Scanner sc = new Scanner(System.in);
-
-        AttendanceRepository attendanceRepo = new DbAttendanceRepository();
-        AttendanceService attendanceService =
-                new AttendanceService(attendanceRepo);
-
         DbFitnessClassRepository fitnessRepo = new DbFitnessClassRepository();
         DbClassBookingRepository bookingRepo = new DbClassBookingRepository();
         DbMemberRepository memberRepo = new DbMemberRepository();
         DbMembershipRepository membershipRepo = new DbMembershipRepository();
+        AttendanceRepository attendanceRepo = new DbAttendanceRepository();
 
         FitnessClassService fitnessService = new FitnessClassService(fitnessRepo);
-        MembershipService membershipService = new MembershipService(membershipRepo, attendanceRepo);
-        BookingService bookingService = new BookingService(bookingRepo, membershipService);
         MemberService memberService = new MemberService(memberRepo);
+        AttendanceService attendanceService = new AttendanceService(attendanceRepo);
 
+        var membershipComponent =
+                new components.membership.MembershipComponent(membershipRepo, attendanceRepo);
+        var bookingComponent = new components.booking.ClassBookingComponent(
+                bookingRepo,
+                membershipComponent.membershipService()
+        );
+
+        var statisticsComponent =
+                new components.statistics.StatisticsComponent(attendanceRepo, bookingRepo);
+        var notificationComponent =
+                new components.notification.NotificationComponent();
+
+        MembershipService membershipService = membershipComponent.membershipService();
+        BookingService bookingService = bookingComponent.bookingService();
+        StatisticsService statisticsService = statisticsComponent.statisticsService();
+        components.notification.Notifier notifier = notificationComponent.notifier();
+
+        Scanner sc = new Scanner(System.in);
         while (true) {
             System.out.println("Fitness application");
             System.out.println("Menu");
@@ -190,11 +202,14 @@ public class Main {
                             }
                         }
                         case 8 -> {
-                            System.out.print("Fitness class ID: ");
-                            int id = sc.nextInt();
+                            System.out.print("Fitness Class ID: ");
+                            int classId = sc.nextInt();
                             sc.nextLine();
-                            bookingService.getBookingsByFitness(id).forEach(System.out::println);
+
+                            int cnt = statisticsService.classBookingsCount(classId);
+                            System.out.println("Bookings for class: " + cnt);
                         }
+
                         case 9 -> {
                             System.out.print("Type: ");
                             String type = sc.nextLine();
@@ -312,18 +327,20 @@ public class Main {
                             sc.nextLine();
 
                             System.out.print("Type (MONTHLY/YEARLY/VISIT_BASED): ");
-                            String typeStr = sc.nextLine().trim().toUpperCase();
+                            String kindStr = sc.nextLine().trim().toUpperCase();
 
                             Integer visits = null;
-                            if ("VISIT_BASED".equals(typeStr)) {
+                            if ("VISIT_BASED".equals(kindStr)) {
                                 System.out.print("Visits limit: ");
                                 visits = sc.nextInt();
                                 sc.nextLine();
                             }
 
-                            membershipService.buyMembership(memberId, factories.MembershipKind.valueOf(typeStr), visits);
+                            membershipService.buyMembership(memberId, factories.MembershipKind.valueOf(kindStr), visits);
                             System.out.println("Membership purchased");
+                            notifier.notify("Membership purchased for member " + memberId);
                         }
+
                         case 2 -> {
                             System.out.print("Member ID: ");
                             int memberId = sc.nextInt();
@@ -363,7 +380,8 @@ public class Main {
                     System.out.println("12: Show members filtered by gender");
                     System.out.println("13: Show members filtered by email domain");
                     System.out.println("14: Show members sorted by name");
-                    System.out.println("15: Exit");
+                    System.out.println("15: Compute statistics for member");
+                    System.out.println("16: Exit");
 
                     System.out.print("Enter your choice: ");
                     int choice4 = sc.nextInt();
@@ -528,8 +546,18 @@ public class Main {
                             members.forEach(System.out::println);
                         }
 
-
                         case 15 -> {
+                            System.out.print("Member ID: ");
+                            int memberId = sc.nextInt();
+                            sc.nextLine();
+
+                            int visits = statisticsService.totalVisits(memberId);
+                            System.out.println("Total visits: " + visits);
+
+                            notifier.notify("Statistics computed for member " + memberId);
+                        }
+
+                        case 16 -> {
                             return;
                         }
 
