@@ -73,13 +73,15 @@ public class DbClassBookingRepository implements ClassBookingRepository {
     public List<ClassBooking> findByClassId(int fitnessClassId) {
         List<ClassBooking> bookings = new ArrayList<>();
         String sql = """
-                SELECT b.id AS booking_id, m.id AS member_id, m.name AS member_name,
-                       f.id AS class_id, f.type AS class_type, f.max_places AS max_places
-                FROM bookings b
-                JOIN members m ON b.member_id = m.id
-                JOIN fitness f ON b.class_id = f.id
-                WHERE f.id = ?;
-                """;
+            SELECT b.id AS booking_id,
+                   m.id AS member_id, m.name AS member_name,
+                   f.id AS class_id, f.type AS class_type, f.max_places AS max_places
+            FROM bookings b
+            JOIN members m ON b.member_id = m.id
+            JOIN fitness f ON b.class_id = f.id
+            WHERE f.id = ?;
+            """;
+
         try (Connection con = db.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -87,14 +89,17 @@ public class DbClassBookingRepository implements ClassBookingRepository {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                Member member = new Member();
-                member.setId(rs.getInt("member_id"));
-                member.setName(rs.getString("member_name"));
 
-                FitnessClass fitnessClass = new FitnessClass();
-                fitnessClass.setId(rs.getInt("class_id"));
-                fitnessClass.setFitnessType(rs.getString("class_type"));
-                fitnessClass.setMaxPlaces(rs.getInt("max_places"));
+                Member member = new Member.Builder()
+                        .id(rs.getInt("member_id"))
+                        .name(rs.getString("member_name"))
+                        .build();
+
+                FitnessClass fitnessClass = new FitnessClass.Builder()
+                        .id(rs.getInt("class_id"))
+                        .fitnessType(rs.getString("class_type"))
+                        .maxPlaces(rs.getInt("max_places"))
+                        .build();
 
                 bookings.add(new ClassBooking(member, fitnessClass));
             }
@@ -103,33 +108,32 @@ public class DbClassBookingRepository implements ClassBookingRepository {
         }
         return bookings;
     }
-
     @Override
     public List<ClassBooking> findByMemberId(int memberId) {
         List<ClassBooking> bookings = new ArrayList<>();
         String sql = """
-                SELECT b.id AS booking_id, m.id AS member_id, m.name AS member_name,
-                       f.id AS class_id, f.type AS class_type, f.max_places AS max_places
-                FROM bookings b
-                JOIN members m ON b.member_id = m.id
-                JOIN fitness f ON b.class_id = f.id
-                WHERE m.id = ?;
-                """;
+            SELECT b.id AS booking_id,
+                   m.id AS member_id, m.name AS member_name,
+                   f.id AS class_id, f.type AS class_type, f.max_places AS max_places
+            FROM bookings b
+            JOIN members m ON b.member_id = m.id
+            JOIN fitness f ON b.class_id = f.id
+            WHERE m.id = ?;
+            """;
         try (Connection con = db.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
-
             ps.setInt(1, memberId);
             ResultSet rs = ps.executeQuery();
-
             while (rs.next()) {
-                Member member = new Member();
-                member.setId(rs.getInt("member_id"));
-                member.setName(rs.getString("member_name"));
-
-                FitnessClass fitnessClass = new FitnessClass();
-                fitnessClass.setId(rs.getInt("class_id"));
-                fitnessClass.setFitnessType(rs.getString("class_type"));
-                fitnessClass.setMaxPlaces(rs.getInt("max_places"));
+                Member member = new Member.Builder()
+                        .id(rs.getInt("member_id"))
+                        .name(rs.getString("member_name"))
+                        .build();
+                FitnessClass fitnessClass = new FitnessClass.Builder()
+                        .id(rs.getInt("class_id"))
+                        .fitnessType(rs.getString("class_type"))
+                        .maxPlaces(rs.getInt("max_places"))
+                        .build();
 
                 bookings.add(new ClassBooking(member, fitnessClass));
             }
@@ -138,30 +142,31 @@ public class DbClassBookingRepository implements ClassBookingRepository {
         }
         return bookings;
     }
-
     @Override
     public List<ClassBooking> findAll() {
         List<ClassBooking> bookings = new ArrayList<>();
         String sql = """
-                SELECT m.id AS member_id, m.name AS member_name,
-                       f.id AS class_id, f.type AS class_type, f.max_places AS max_places
-                FROM bookings b
-                JOIN members m ON b.member_id = m.id
-                JOIN fitness f ON b.class_id = f.id;
-                """;
+            SELECT m.id AS member_id, m.name AS member_name,
+                   f.id AS class_id, f.type AS class_type, f.max_places AS max_places
+            FROM bookings b
+            JOIN members m ON b.member_id = m.id
+            JOIN fitness f ON b.class_id = f.id;
+            """;
         try (Connection con = db.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-
             while (rs.next()) {
-                Member member = new Member();
-                member.setId(rs.getInt("member_id"));
-                member.setName(rs.getString("member_name"));
 
-                FitnessClass fitnessClass = new FitnessClass();
-                fitnessClass.setId(rs.getInt("class_id"));
-                fitnessClass.setFitnessType(rs.getString("class_type"));
-                fitnessClass.setMaxPlaces(rs.getInt("max_places"));
+                Member member = new Member.Builder()
+                        .id(rs.getInt("member_id"))
+                        .name(rs.getString("member_name"))
+                        .build();
+
+                FitnessClass fitnessClass = new FitnessClass.Builder()
+                        .id(rs.getInt("class_id"))
+                        .fitnessType(rs.getString("class_type"))
+                        .maxPlaces(rs.getInt("max_places"))
+                        .build();
 
                 bookings.add(new ClassBooking(member, fitnessClass));
             }
@@ -170,4 +175,5 @@ public class DbClassBookingRepository implements ClassBookingRepository {
         }
         return bookings;
     }
+
 }

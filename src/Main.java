@@ -18,6 +18,7 @@ import service.MembershipService;
 
 import java.sql.Connection;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 
@@ -63,7 +64,14 @@ public class Main {
                     System.out.println("7: Cancel booking");
                     System.out.println("8: Show bookings by fitness class");
                     System.out.println("9: Add new fitness class");
-                    System.out.println("10: Exit");
+                    System.out.println("10: Get classes cheaper than");
+                    System.out.println("11: Get classes with free places");
+                    System.out.println("12: Get classes sorted by cost ascending");
+                    System.out.println("13: Get classes sorted by date");
+                    System.out.println("14: Get classes sorted by trainer name");
+                    System.out.println("15: Get classes filtered by cost");
+                    System.out.println("16: Get classes sorted by type");
+                    System.out.println("17: Exit");
 
                     System.out.print("Enter your choice: ");
                     int choice2 = sc.nextInt();
@@ -179,47 +187,103 @@ public class Main {
                                 System.out.println("Error cancelling booking: " + e.getMessage());
                             }
                         }
-
                         case 8 -> {
                             System.out.print("Fitness class ID: ");
                             int id = sc.nextInt();
+                            sc.nextLine();
                             bookingService.getBookingsByFitness(id).forEach(System.out::println);
                         }
-
                         case 9 -> {
-                            FitnessClass fc = new FitnessClass();
-
                             System.out.print("Type: ");
-                            fc.setFitnessType(sc.nextLine());
+                            String type = sc.nextLine();
 
                             System.out.print("Description: ");
-                            fc.setFitnessDescription(sc.nextLine());
+                            String description = sc.nextLine();
 
                             System.out.print("Date: ");
-                            fc.setFitnessDate(sc.nextLine());
+                            String date = sc.nextLine();
 
                             System.out.print("Time: ");
-                            fc.setFitnessTime(sc.nextLine());
+                            String time = sc.nextLine();
 
                             System.out.print("Cost: ");
-                            fc.setFitnessCost(sc.nextInt());
+                            int cost = sc.nextInt();
                             sc.nextLine();
 
                             System.out.print("Trainer name: ");
-                            fc.setFitnessTrainerName(sc.nextLine());
+                            String trainerName = sc.nextLine();
 
                             System.out.print("Trainer surname: ");
-                            fc.setFitnessTrainerSurname(sc.nextLine());
+                            String trainerSurname = sc.nextLine();
 
                             System.out.print("Max places: ");
-                            fc.setMaxPlaces(sc.nextInt());
+                            int maxPlaces = sc.nextInt();
                             sc.nextLine();
+
+                            FitnessClass fc = new FitnessClass.Builder()
+                                    .fitnessType(type)
+                                    .fitnessDescription(description)
+                                    .fitnessDate(date)
+                                    .fitnessTime(time)
+                                    .fitnessCost(cost)
+                                    .fitnessTrainerName(trainerName)
+                                    .fitnessTrainerSurname(trainerSurname)
+                                    .maxPlaces(maxPlaces)
+                                    .build();
 
                             fitnessService.addFitnessClass(fc);
                             System.out.println("Fitness class added");
                         }
-
                         case 10 -> {
+                            System.out.print("Enter max cost: ");
+                            int cost = sc.nextInt();
+                            sc.nextLine();
+
+                            List<FitnessClass> classes = fitnessService.getClassesCheaperThan(cost);
+
+                            classes.forEach(System.out::println);
+                        }
+                        case 11 -> {
+                            List<FitnessClass> classes = fitnessService.getClassesWithFreePlaces();
+
+                            classes.forEach(System.out::println);
+                        }
+                        case 12 -> {
+                            List<FitnessClass> classes = fitnessService.sortByCostAscending();
+
+                            classes.forEach(System.out::println);
+                        }
+                        case 13 -> {
+                            List<FitnessClass> classes = fitnessService.sortByDate();
+
+                            classes.forEach(System.out::println);
+                        }
+                        case 14 -> {
+                            List<FitnessClass> classes = fitnessService.sortByTrainerName();
+
+                            classes.forEach(System.out::println);
+                        }
+                        case 15 -> {
+                            System.out.print("Enter minimum cost: ");
+                            int minCost = sc.nextInt();
+                            sc.nextLine();
+
+                            List<FitnessClass> classes =
+                                    fitnessService.getFilteredClasses(fc -> fc.getFitnessCost() >= minCost);
+
+                            classes.forEach(System.out::println);
+                        }
+                        case 16 -> {
+                            List<FitnessClass> classes =
+                                    fitnessService.getSortedClasses(
+                                            Comparator.comparing(FitnessClass::getFitnessType)
+                                    );
+
+                            classes.forEach(System.out::println);
+                        }
+
+
+                        case 17 -> {
                             System.out.println("Closing the program");
                             return;
                         }
@@ -248,13 +312,15 @@ public class Main {
 
                             System.out.print("Enter type: ");
                             String type = sc.nextLine();
+                            System.out.print("Enter cost: ");
+                            int cost = sc.nextInt();
 
                             System.out.print("Enter days: ");
                             int days = sc.nextInt();
                             sc.nextLine();
 
                             try {
-                                membershipService.buyMembership(id, type, days);
+                                membershipService.buyMembership(id, type,cost, days);
                                 System.out.println("Membership bought successfully!");
                             } catch (Exception e) {
                                 System.out.println("Error: " + e.getMessage());
@@ -338,7 +404,14 @@ public class Main {
                     System.out.println("5: Find member by phone");
                     System.out.println("6: Update member");
                     System.out.println("7: Get bookings by member id");
-                    System.out.println("8: Exit");
+                    System.out.println("8: Show all members by gender");
+                    System.out.println("9: Show members by email domain");
+                    System.out.println("10: Show members with name starting with");
+                    System.out.println("11: Show members sorted by surname and name");
+                    System.out.println("12: Show members filtered by gender");
+                    System.out.println("13: Show members filtered by email domain");
+                    System.out.println("14: Show members sorted by name");
+                    System.out.println("15: Exit");
 
                     System.out.print("Enter your choice: ");
                     int choice4 = sc.nextInt();
@@ -346,19 +419,33 @@ public class Main {
 
                     switch (choice4) {
                         case 1 -> {
-                            Member m = new Member();
                             System.out.print("Name: ");
-                            m.setName(sc.nextLine());
+                            String name = sc.nextLine();
+
                             System.out.print("Surname: ");
-                            m.setSurname(sc.nextLine());
+                            String surname = sc.nextLine();
+
                             System.out.print("Phone number: ");
-                            m.setPhoneNumber(sc.nextLine());
+                            String phone = sc.nextLine();
+
                             System.out.print("Email: ");
-                            m.setEmail(sc.nextLine());
+                            String email = sc.nextLine();
+
                             System.out.print("Gender: ");
-                            m.setGender(sc.nextLine());
+                            String gender = sc.nextLine();
+
+                            Member m = new Member.Builder()
+                                    .name(name)
+                                    .surname(surname)
+                                    .phoneNumber(phone)
+                                    .email(email)
+                                    .gender(gender)
+                                    .build();
+
                             memberService.addMember(m);
+                            System.out.println("Member added successfully");
                         }
+
 
                         case 2 -> {
                             List<Member> members = memberService.getAllMembers();
@@ -392,39 +479,111 @@ public class Main {
                         }
 
                         case 6 -> {
-                            Member m = new Member();
-
                             System.out.print("Member ID: ");
-                            m.setId(sc.nextInt());
-                            sc.nextLine();
+                            int id = sc.nextInt();
+                            sc.nextLine(); // очистка
 
                             System.out.print("Name: ");
-                            m.setName(sc.nextLine());
+                            String name = sc.nextLine();
 
                             System.out.print("Surname: ");
-                            m.setSurname(sc.nextLine());
+                            String surname = sc.nextLine();
 
                             System.out.print("Phone: ");
-                            m.setPhoneNumber(sc.nextLine());
+                            String phone = sc.nextLine();
 
                             System.out.print("Email: ");
-                            m.setEmail(sc.nextLine());
+                            String email = sc.nextLine();
 
                             System.out.print("Gender: ");
-                            m.setGender(sc.nextLine());
+                            String gender = sc.nextLine();
+
+                            Member m = new Member.Builder()
+                                    .id(id)
+                                    .name(name)
+                                    .surname(surname)
+                                    .phoneNumber(phone)
+                                    .email(email)
+                                    .gender(gender)
+                                    .build();
 
                             memberService.updateMember(m);
                             System.out.println("Member updated successfully");
                         }
-
                         case 7 -> {
                             System.out.print("Member ID: ");
                             int id = sc.nextInt();
                             sc.nextLine();
                             bookingService.getBookingsByMember(id).forEach(System.out::println);
                         }
-
                         case 8 -> {
+                            List<Member> members = memberService.getAllMembers();
+                            members.forEach(System.out::println);
+                        }
+
+                        case 9 -> {
+                            System.out.print("Enter gender: ");
+                            String gender = sc.nextLine();
+
+                            List<Member> members = memberService.getMembersByGender(gender);
+
+                            if (members.isEmpty()) {
+                                System.out.println("No members found");
+                            } else {
+                                members.forEach(System.out::println);
+                            }
+                        }
+
+                        case 10 -> {
+                            System.out.print("Enter email domain (example: gmail.com): ");
+                            String domain = sc.nextLine();
+
+                            List<Member> members = memberService.getMembersByEmailDomain(domain);
+
+                            members.forEach(System.out::println);
+                        }
+
+                        case 11 -> {
+                            System.out.print("Enter name prefix: ");
+                            String prefix = sc.nextLine();
+
+                            List<Member> members = memberService.getMembersWithNameStartsWith(prefix);
+
+                            members.forEach(System.out::println);
+                        }
+
+                        case 12 -> {
+                            List<Member> members = memberService.sortBySurnameThenName();
+
+                            members.forEach(System.out::println);
+                        }
+
+                        case 13 -> {
+                            System.out.print("Show only male members? (yes/no): ");
+                            String answer = sc.nextLine();
+
+                            List<Member> members;
+
+                            if (answer.equalsIgnoreCase("yes")) {
+                                members = memberService.getFilteredMembers(
+                                        m -> "Male".equalsIgnoreCase(m.getGender())
+                                );
+                            } else {
+                                members = memberService.getAllMembers();
+                            }
+
+                            members.forEach(System.out::println);
+                        }
+                        case 14 -> {
+                            List<Member> members = memberService.getSortedMembers(
+                                    Comparator.comparing(Member::getName)
+                            );
+
+                            members.forEach(System.out::println);
+                        }
+
+
+                        case 15 -> {
                             return;
                         }
 
