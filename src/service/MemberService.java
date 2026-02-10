@@ -42,13 +42,11 @@ public class MemberService {
         memberRepository.update(member);
     }
 
-    public Member findMemberByid(int id) {
-        Member m = memberRepository.findById(id);
-        if (m == null) {
-            throw new MemberNotFoundException(id);
-        }
-        return m;
+    public Member findMemberById(int id) {
+        return memberRepository.findById(id)
+                .orElseThrow(() -> new MemberNotFoundException(id));
     }
+
 
     public Member findMemberByEmail(String email) {
         Member m = memberRepository.findByEmail(email);

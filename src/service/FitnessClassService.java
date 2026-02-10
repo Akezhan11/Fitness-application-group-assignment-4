@@ -27,11 +27,10 @@ public class FitnessClassService {
         if (id <= 0) {
             throw new IllegalArgumentException("Invalid id");
         }
-        FitnessClass fc = repository.findById(id);
-        if (fc == null) {
-            throw new RuntimeException("Fitness class not found with id: " + id);
-        }
-        return fc;
+
+        return repository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Fitness class not found with id: " + id));
     }
     public FitnessClass findByType(String fitnessType) {
         if (fitnessType == null || fitnessType.isBlank()) {

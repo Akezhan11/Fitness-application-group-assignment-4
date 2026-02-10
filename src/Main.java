@@ -144,7 +144,7 @@ public class Main {
                             sc.nextLine();
 
                             try {
-                                Member member = memberService.findMemberByid(memberId);
+                                Member member = memberService.findMemberById(memberId);
                                 FitnessClass fitnessClass = fitnessService.findById(classId);
 
                                 if (member == null) {
@@ -182,7 +182,7 @@ public class Main {
                             sc.nextLine();
 
                             try {
-                                Member member = memberService.findMemberByid(memberId);
+                                Member member = memberService.findMemberById(memberId);
                                 FitnessClass fitnessClass = fitnessService.findById(classId);
 
                                 if (member == null) {
@@ -430,7 +430,7 @@ public class Main {
                             System.out.print("Enter member id: ");
                             int id = sc.nextInt();
                             sc.nextLine();
-                            Member m = memberService.findMemberByid(id);
+                            Member m = memberService.findMemberById(id);
                             System.out.println(m != null ? m : "Member not found");
                         }
 
@@ -585,7 +585,7 @@ public class Main {
                             int memberId = sc.nextInt();
                             sc.nextLine();
 
-                            Member m = memberService.findMemberByid(memberId);
+                            Member m = memberService.findMemberById(memberId);
                             if (m == null) {
                                 System.out.println("Member not found");
                                 break;
@@ -609,7 +609,7 @@ public class Main {
                             int memberId = sc.nextInt();
                             sc.nextLine();
 
-                            Member m = memberService.findMemberByid(memberId);
+                            Member m = memberService.findMemberById(memberId);
                             if (m == null) {
                                 System.out.println("Member not found");
                                 break;

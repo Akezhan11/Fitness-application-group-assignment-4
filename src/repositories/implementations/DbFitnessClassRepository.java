@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class DbFitnessClassRepository implements FitnessClassRepository {
     private final DatabaseConnection db = DatabaseConnection.getInstance();
@@ -34,13 +35,16 @@ public class DbFitnessClassRepository implements FitnessClassRepository {
         }
     }
     @Override
-    public FitnessClass findById(int id) {
+    public Optional<FitnessClass> findById(int id) {
         String sql = "SELECT * FROM fitness WHERE id=?;";
-        try (Connection con = db.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = db.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
+
             if (rs.next()) {
-                return new FitnessClass.Builder()
+                FitnessClass fc = new FitnessClass.Builder()
                         .id(rs.getInt("id"))
                         .fitnessType(rs.getString("type"))
                         .fitnessDescription(rs.getString("description"))
@@ -51,12 +55,15 @@ public class DbFitnessClassRepository implements FitnessClassRepository {
                         .fitnessTrainerSurname(rs.getString("trainer_last_name"))
                         .maxPlaces(rs.getInt("max_places"))
                         .build();
+                return Optional.of(fc);
             }
-            return null;
-        } catch (Exception e) {
+            return Optional.empty();
+
+        } catch (SQLException e) {
             throw new RuntimeException("Error finding fitness by id " + id, e);
         }
     }
+
     @Override
     public FitnessClass findByType(String fitnessType) {
         String sql = "SELECT * FROM fitness WHERE type=?;";
@@ -159,4 +166,20 @@ public class DbFitnessClassRepository implements FitnessClassRepository {
             throw new RuntimeException("Error finding all fitness classes", e);
         }
     }
+    @Override
+    public void delete(int id) {
+        String sql = "DELETE FROM fitness WHERE id = ?";
+
+        try (Connection con = db.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 }

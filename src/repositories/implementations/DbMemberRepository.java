@@ -7,11 +7,14 @@ import repositories.MemberRepository;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class DbMemberRepository implements MemberRepository{
     private final DatabaseConnection db = DatabaseConnection.getInstance();
+    private final List<Member> members = new ArrayList<>();
     @Override
     public void save(Member member){
         String sql = """
@@ -29,14 +32,16 @@ public class DbMemberRepository implements MemberRepository{
         }
     }
     @Override
-    public Member findById(int id) {
+    public Optional<Member> findById(int id) {
         String sql = "SELECT * FROM members WHERE id=?;";
         try (Connection con = db.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
+
             if (rs.next()) {
-                return new Member.Builder()
+                Member member = new Member.Builder()
                         .id(rs.getInt("id"))
                         .name(rs.getString("name"))
                         .surname(rs.getString("surname"))
@@ -44,12 +49,17 @@ public class DbMemberRepository implements MemberRepository{
                         .email(rs.getString("email"))
                         .gender(rs.getString("gender"))
                         .build();
+
+                return Optional.of(member);
             }
-            return null;
+
+            return Optional.empty();
+
         } catch (Exception e) {
             throw new RuntimeException("Error finding member by id " + id, e);
         }
     }
+
     @Override
     public Member findByPhone(String phone) {
         String sql = "SELECT * FROM members WHERE phone=?;";
@@ -140,4 +150,18 @@ public class DbMemberRepository implements MemberRepository{
             throw new RuntimeException("Error finding all members", e);
         }
     }
+    @Override
+    public void delete(int id) {
+        String sql = "DELETE FROM members WHERE id = ?";
+        try (Connection con = db.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
